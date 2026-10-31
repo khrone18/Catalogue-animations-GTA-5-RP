@@ -37,6 +37,13 @@ npm install
 npm run dev        # http://localhost:5173
 ```
 
+> 🪟 **Windows ?** Double-clique simplement sur **`LANCEUR-WINDOWS.bat`**.
+> 🍎🐧 **Mac / Linux ?** `./lanceur-mac-linux.sh`.
+
+📖 **Tutoriels pas-à-pas complets pour chaque méthode** (fichier autonome,
+développeur, installation sur téléphone) : voir
+[**TUTORIEL-INSTALLATION.md**](TUTORIEL-INSTALLATION.md).
+
 ## 📦 Version hors-ligne
 
 ```bash
