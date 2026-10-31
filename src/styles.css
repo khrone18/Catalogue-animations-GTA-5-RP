@@ -1959,6 +1959,11 @@ a.source-card:hover {
   overflow: auto;
 }
 
+/* ancre pour les flèches de navigation de la fiche */
+.modal-visual {
+  position: relative;
+}
+
 .modal-visual-head {
   display: flex;
   align-items: center;
@@ -3133,5 +3138,308 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .stage-glow, .stage-ring, .trail, .float-tag, .emote-grid > *, .hero h1 span, .ambient-a, .ambient-b {
     animation: none !important;
+  }
+}
+
+/* ==========================================================================
+   POLISH V4 — rendus GTA sur les cartes, hero galerie, nav fiche, lightbox
+   ========================================================================== */
+
+/* --- Cartes : le rendu GTA réel apparaît au survol --- */
+.forge-thumb {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(1.07);
+  transition: opacity 0.38s ease, transform 0.55s cubic-bezier(0.2, 0.7, 0.25, 1);
+  pointer-events: none;
+  background: #101216;
+}
+
+.emote-card:hover .forge-thumb,
+.emote-card:focus-within .forge-thumb {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.render-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 5px;
+  background: rgba(13, 14, 17, 0.62);
+  color: #efe8d6;
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.emote-card:hover .render-badge,
+.emote-card:focus-within .render-badge {
+  opacity: 1;
+}
+
+/* les éléments existants restent au-dessus du rendu */
+.emote-card .kind-badge,
+.emote-card .fav-button,
+.emote-card .open-hint {
+  z-index: 3;
+}
+
+/* --- Topbar compacte au scroll --- */
+.topbar {
+  transition: height 0.28s ease, box-shadow 0.28s ease, background 0.28s ease;
+}
+
+.topbar.is-compact {
+  height: 52px;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.35);
+  border-bottom-color: var(--line-strong);
+}
+
+.topbar.is-compact .brand-mark svg,
+.topbar.is-compact .brand-text {
+  transition: transform 0.28s ease;
+}
+
+.topbar.is-compact .brand-text {
+  font-size: 0.92em;
+}
+
+/* --- Hero : galerie de rendus GTA --- */
+.hero-card {
+  cursor: pointer;
+}
+
+.hero-card:hover {
+  transform: rotate(-2.4deg) translateY(-5px);
+}
+
+.hero-visual {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #15181d 0%, #0a0c10 100%);
+}
+
+.hero-visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  animation: heroFade 0.7s ease both;
+}
+
+@keyframes heroFade {
+  from {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.hero-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 0 4px;
+}
+
+.hero-dots button {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.hero-dots button.is-active {
+  background: currentColor;
+  transform: scale(1.35);
+}
+
+/* --- Fiche détail : navigation précédent / suivant --- */
+.modal-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--surface) 84%, transparent);
+  color: var(--ink, inherit);
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
+}
+
+.modal-nav--prev {
+  left: -46px;
+}
+
+.modal-nav--prev svg:first-child {
+  transform: rotate(90deg);
+}
+
+.modal-nav--next {
+  right: -46px;
+}
+
+.modal-nav--next svg:first-child {
+  transform: rotate(270deg);
+}
+
+.modal-nav:hover:not(:disabled) {
+  transform: translateY(-50%) scale(1.08);
+  background: var(--surface);
+}
+
+.modal-nav:disabled {
+  opacity: 0.28;
+  cursor: default;
+}
+
+.modal-position {
+  position: absolute;
+  top: -30px;
+  right: 0;
+  z-index: 6;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  opacity: 0.42;
+}
+
+/* cliquable pour agrandir */
+.forge-zoom-trigger {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+
+/* --- Lightbox plein écran --- */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  background: rgba(5, 6, 8, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  cursor: zoom-out;
+  animation: lightboxIn 0.22s ease both;
+}
+
+@keyframes lightboxIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.lightbox img {
+  max-width: min(92vw, 1600px);
+  max-height: 84vh;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 48px 140px rgba(0, 0, 0, 0.65);
+  cursor: default;
+  animation: lightboxZoom 0.28s cubic-bezier(0.2, 0.7, 0.25, 1) both;
+}
+
+@keyframes lightboxZoom {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+.lightbox-caption {
+  position: absolute;
+  bottom: 22px;
+  max-width: 82vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.72);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+/* --- Responsive --- */
+@media (max-width: 1100px) {
+  .modal-nav--prev {
+    left: 8px;
+  }
+
+  .modal-nav--next {
+    right: 8px;
+  }
+}
+
+@media (max-width: 640px) {
+  .topbar.is-compact .offline-pill {
+    opacity: 0.55;
+  }
+
+  .modal-position {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .forge-thumb,
+  .render-badge,
+  .hero-visual img,
+  .lightbox,
+  .lightbox img {
+    animation: none !important;
+    transition-duration: 0.01s !important;
   }
 }

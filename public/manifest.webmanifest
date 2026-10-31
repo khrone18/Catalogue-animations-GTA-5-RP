@@ -1,0 +1,19 @@
+{
+  "name": "Terrain — Catalogue d'emotes GTA V & FiveM",
+  "short_name": "Terrain",
+  "description": "3 700+ emotes réelles, rendus GTA, commandes /e prêtes à copier. Fonctionne hors ligne.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0b0c0e",
+  "theme_color": "#0b0c0e",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

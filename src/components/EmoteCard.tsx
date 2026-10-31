@@ -1,6 +1,7 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import type { Emote } from '../lib/pose';
 import { commandFor, KIND_LABEL, sourceLabel, type ResourceFilter, type Syntax } from '../lib/commands';
+import { previewFor } from '../lib/forge';
 import { Sketch } from './Sketch';
 import { Icon } from './Icon';
 
@@ -28,6 +29,8 @@ function EmoteCardBase({
   onOpen,
 }: Props) {
   const { command } = commandFor(emote, syntax, resource);
+  const render = previewFor(emote);
+  const [imgFailed, setImgFailed] = useState(false);
 
   return (
     <article
@@ -49,6 +52,20 @@ function EmoteCardBase({
         }}
       >
         <Sketch emote={emote} index={index} />
+        {render && !imgFailed && (
+          <>
+            <img
+              className="forge-thumb"
+              src={render}
+              alt=""
+              loading="lazy"
+              aria-hidden="true"
+              referrerPolicy="no-referrer"
+              onError={() => setImgFailed(true)}
+            />
+            <span className="render-badge" aria-hidden="true">Rendu réel</span>
+          </>
+        )}
         <span className="kind-badge">{KIND_LABEL[emote.kind]}</span>
         <button
           className={`fav-button ${favorite ? 'is-fav' : ''}`}

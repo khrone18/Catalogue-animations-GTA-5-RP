@@ -15,6 +15,8 @@ interface Props {
   onClose: () => void;
   onFavorite: (id: string) => void;
   onCopy: (text: string, label?: string) => void;
+  onNavigate?: (direction: -1 | 1) => void;
+  canNavigate?: { prev: boolean; next: boolean };
 }
 
 const SOURCE_URLS: Record<string, string> = {
@@ -31,10 +33,13 @@ export function EmoteDetail({
   onClose,
   onFavorite,
   onCopy,
+  onNavigate,
+  canNavigate,
 }: Props) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const [frame, setFrame] = useState(0);
+  const [zoomed, setZoomed] = useState(false);
   const renderImg = previewFor(emote);
   const [mode, setMode] = useState<'forge' | '3d' | 'sketch'>(renderImg ? 'forge' : '3d');
   const { command, hint } = commandFor(emote, syntax, resource);
@@ -45,6 +50,7 @@ export function EmoteDetail({
 
   useEffect(() => {
     setFrame(0);
+    setZoomed(false);
     setMode(previewFor(emote) ? 'forge' : '3d');
   }, [emote.id]);
 
@@ -55,8 +61,22 @@ export function EmoteDetail({
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
+        if (zoomed) {
+          event.preventDefault();
+          setZoomed(false);
+          return;
+        }
         event.preventDefault();
         onClose();
+        return;
+      }
+      if (onNavigate && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
+        const direction = event.key === 'ArrowLeft' ? -1 : 1;
+        const ok = event.key === 'ArrowLeft' ? canNavigate?.prev !== false : canNavigate?.next !== false;
+        if (ok) {
+          event.preventDefault();
+          onNavigate(direction as -1 | 1);
+        }
         return;
       }
       if (event.key !== 'Tab' || !dialogRef.current) return;
@@ -80,7 +100,7 @@ export function EmoteDetail({
       document.body.style.overflow = previous;
       document.removeEventListener('keydown', onKeyDown);
     };
-  }, [onClose]);
+  }, [onClose, onNavigate, canNavigate?.prev, canNavigate?.next, zoomed]);
 
   return (
     <div className="modal-backdrop" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
@@ -92,6 +112,29 @@ export function EmoteDetail({
         ref={dialogRef}
       >
         <div className="modal-visual">
+          {onNavigate && (
+            <>
+              <button
+                type="button"
+                className="modal-nav modal-nav--prev"
+                onClick={() => onNavigate(-1)}
+                disabled={!canNavigate?.prev}
+                aria-label="Emote précédente"
+              >
+                <Icon name="chevron" size={20} />
+              </button>
+              <button
+                type="button"
+                className="modal-nav modal-nav--next"
+                onClick={() => onNavigate(1)}
+                disabled={!canNavigate?.next}
+                aria-label="Emote suivante"
+              >
+                <Icon name="chevron" size={20} />
+              </button>
+              <span className="modal-position" aria-hidden="true">←/→</span>
+            </>
+          )}
           <div className="modal-visual-head">
             <span className="eyebrow">Aperçu</span>
             <div className="visual-toggle" role="group" aria-label="Mode d'aperçu">
@@ -127,17 +170,25 @@ export function EmoteDetail({
           {mode === 'forge' ? (
             <div className="planche" aria-label="Rendu du jeu (Plebmasters Forge)">
               <div className="planche-frame planche-frame--forge">
-                <img
-                  className="forge-preview"
-                  src={renderImg ?? ''}
-                  alt={`Rendu du jeu : ${emote.label}`}
-                  loading="eager"
-                  referrerPolicy="no-referrer"
-                  onError={() => setMode('3d')}
-                />
+                <button
+                  type="button"
+                  className="forge-zoom-trigger"
+                  onClick={() => setZoomed(true)}
+                  aria-label="Agrandir le rendu"
+                  title="Cliquer pour agrandir"
+                >
+                  <img
+                    className="forge-preview"
+                    src={renderImg ?? ''}
+                    alt={`Rendu du jeu : ${emote.label}`}
+                    loading="eager"
+                    referrerPolicy="no-referrer"
+                    onError={() => setMode('3d')}
+                  />
+                </button>
               </div>
               <p className="sketch-disclaimer">
-                Rendu de l’animation réelle provenant de Plebmasters Forge — nécessite une connexion.
+                Rendu de l’animation réelle provenant de Plebmasters Forge — cliquez pour agrandir.
               </p>
             </div>
           ) : mode === '3d' ? (
@@ -317,6 +368,16 @@ export function EmoteDetail({
           </p>
         </div>
       </div>
+
+      {zoomed && renderImg && (
+        <div className="lightbox" role="dialog" aria-modal="true" aria-label="Rendu agrandi" onClick={() => setZoomed(false)}>
+          <button type="button" className="icon-button lightbox-close" aria-label="Fermer l'aperçu">
+            <Icon name="x" size={18} />
+          </button>
+          <img src={renderImg} alt={`Rendu du jeu : ${emote.label}`} referrerPolicy="no-referrer" />
+          <span className="lightbox-caption">{emote.label} · {emote.dict}</span>
+        </div>
+      )}
     </div>
   );
 }

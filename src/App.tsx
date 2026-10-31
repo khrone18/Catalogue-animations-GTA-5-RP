@@ -18,8 +18,10 @@ import { EmoteCard } from './components/EmoteCard';
 import { EmoteDetail } from './components/EmoteDetail';
 import { Emote3D } from './components/Emote3D';
 import { Icon } from './components/Icon';
+import { previewFor } from './lib/forge';
 
 const ALL: Emote[] = (rawCatalogue as RawEmote[]).map(enrich);
+const HERO_GALLERY = pickHeroGallery();
 
 const CATEGORY_ORDER = [
   'Danses',
@@ -102,6 +104,61 @@ function score(emote: Emote, needle: string): number {
   return 5;
 }
 
+/** Compteur qui monte de 0 à `to` quand il entre à l'écran. */
+function CountUp({ to }: { to: number }) {
+  const ref = useRef<HTMLElement>(null);
+  const [value, setValue] = useState(0);
+
+  useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') {
+      setValue(to);
+      return;
+    }
+    let raf = 0;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return;
+        io.disconnect();
+        const start = performance.now();
+        const duration = 1400;
+        const tick = (now: number) => {
+          const t = Math.min(1, (now - start) / duration);
+          setValue(Math.round(to * (1 - Math.pow(1 - t, 3))));
+          if (t < 1) raf = requestAnimationFrame(tick);
+        };
+        raf = requestAnimationFrame(tick);
+      },
+      { threshold: 0.35 },
+    );
+    const el = ref.current;
+    if (!el) return;
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      cancelAnimationFrame(raf);
+    };
+  }, [to]);
+
+  return <span ref={ref as React.RefObject<HTMLSpanElement>}>{number.format(value)}</span>;
+}
+
+/** Échantillon d'emotes vedettes pour la galerie du hero. */
+function pickHeroGallery(): Emote[] {
+  const wanted = ['dance', 'salute', 'wave', 'facepalm', 'airguitar', 'music', 'pushup', 'drink', 'bow', 'dance2'];
+  const byCommand = new Map(ALL.map((emote) => [emote.command, emote]));
+  const picked = new Map<string, Emote>();
+  for (const cmd of wanted) {
+    const emote = byCommand.get(cmd);
+    if (emote && previewFor(emote)) picked.set(cmd, emote);
+  }
+  const pool = ALL.filter((emote) => emote.kind === 'animation' && previewFor(emote));
+  const step = Math.max(1, Math.floor(pool.length / 14));
+  for (let i = Math.floor(pool.length / 2); i < pool.length && picked.size < 12; i += step) {
+    picked.set(pool[i].id, pool[i]);
+  }
+  return [...picked.values()];
+}
+
 function App() {
   const [theme, setTheme] = useState<Theme>(readTheme);
   const [query, setQuery] = useState('');
@@ -115,6 +172,8 @@ function App() {
   const [sort, setSort] = useState<Sort>('guide');
   const [view, setView] = useState<View>('grid');
   const [limit, setLimit] = useState(PAGE_SIZE);
+  const [slide, setSlide] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
   const [selected, setSelected] = useState<Emote | null>(() => {
     const id = new URLSearchParams(window.location.search).get('emote');
     return id ? ALL.find((item) => item.id === id) ?? null : null;
@@ -148,6 +207,21 @@ function App() {
 
   useEffect(() => () => clearTimeout(toastTimer.current), []);
 
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    if (HERO_GALLERY.length < 2) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (document.hidden) return;
+    const id = window.setInterval(() => setSlide((current) => (current + 1) % HERO_GALLERY.length), 4200);
+    return () => clearInterval(id);
+  }, []);
+
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -170,6 +244,9 @@ function App() {
       }
       if (event.key === 'Escape' && document.activeElement === searchRef.current) {
         setQuery('');
+      }
+      if (!typing && !event.metaKey && !event.ctrlKey && (event.key === 'g' || event.key === 'l')) {
+        setView(event.key === 'g' ? 'grid' : 'list');
       }
     };
     window.addEventListener('keydown', onKeyDown);
@@ -283,22 +360,31 @@ function App() {
     (resource !== 'all' ? 1 : 0) +
     (favoritesOnly ? 1 : 0);
 
+  const mappedCount = useMemo(
+    () => ALL.reduce((acc, emote) => acc + (previewFor(emote) ? 1 : 0), 0),
+    [],
+  );
+
+  const navInfo = useMemo(() => {
+    if (!selected) return null;
+    const list = visible.some((item) => item.id === selected.id) ? visible : ALL;
+    const idx = list.findIndex((item) => item.id === selected.id);
+    return { list, idx };
+  }, [selected, visible]);
+
+  const goTo = useCallback(
+    (direction: -1 | 1) => {
+      if (!navInfo || navInfo.idx < 0) return;
+      const next = navInfo.list[navInfo.idx + direction];
+      if (next) setSelected(next);
+    },
+    [navInfo],
+  );
+
   const featured = useMemo(
     () => ALL.find((emote) => emote.command === 'dance') ?? ALL.find((emote) => emote.category === 'Danses') ?? ALL[0],
     [],
   );
-  const featuredIndex = useMemo(() => ALL.indexOf(featured), [featured]);
-  const featuredCommand = commandFor(featured, syntax, resource).command;
-  const featuredFields = [
-    featured.dict && 'dict',
-    featured.anim && 'anim',
-    featured.prop && 'prop',
-    featured.expression && 'mood',
-    featured.walk && 'clipset',
-    featured.scenario && 'scenario',
-  ]
-    .filter(Boolean)
-    .join(' + ');
 
   return (
     <div className="app">
@@ -308,7 +394,7 @@ function App() {
         <div className="ambient-grid" />
       </div>
 
-      <header className="topbar">
+      <header className={`topbar ${scrolled ? 'is-compact' : ''}`}>
         <a className="brand" href="#top" aria-label="Terrain, retour en haut">
           <span className="brand-mark" aria-hidden="true">
             <svg viewBox="0 0 32 32" width="22" height="22">
@@ -365,38 +451,80 @@ function App() {
             <dl className="hero-stats">
               <div>
                 <dt>Emotes</dt>
-                <dd>{number.format(ALL.length)}</dd>
+                <dd><CountUp to={ALL.length} /></dd>
+              </div>
+              <div>
+                <dt>Rendus GTA</dt>
+                <dd><CountUp to={mappedCount} /></dd>
               </div>
               <div>
                 <dt>Catégories</dt>
                 <dd>{categories.length}</dd>
               </div>
               <div>
-                <dt>Ressources</dt>
-                <dd>02</dd>
-              </div>
-              <div>
-                <dt>Réseau requis</dt>
-                <dd>0%</dd>
+                <dt>Hors-ligne</dt>
+                <dd>100%</dd>
               </div>
             </dl>
           </div>
 
-          <div className="hero-art" aria-hidden="true">
-            <div className="hero-card">
-              <div className="hero-card-head">
-                <span>Planche {String(featuredIndex + 1).padStart(3, '0')}</span>
-                <span>{featured.category} / {KIND_LABEL[featured.kind]}</span>
-              </div>
-              <Emote3D key={featured.id} emote={featured} index={featuredIndex} className="hero-3d" />
-              <div className="hero-card-foot">
-                <code>{featuredCommand}</code>
-                <span>croquis animé</span>
-              </div>
-            </div>
+          <div className={`hero-art ${HERO_GALLERY.length ? 'has-gallery' : ''}`}>
+            {(() => {
+              const item = HERO_GALLERY.length
+                ? HERO_GALLERY[slide % HERO_GALLERY.length]
+                : featured;
+              const img = previewFor(item);
+              return (
+                <div
+                  className="hero-card"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Ouvrir la fiche de ${item.label}`}
+                  onClick={() => setSelected(item)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      setSelected(item);
+                    }
+                  }}
+                >
+                  <div className="hero-card-head">
+                    <span>Planche {String(ALL.indexOf(item) + 1).padStart(3, '0')}</span>
+                    <span>{item.category} / {KIND_LABEL[item.kind]}</span>
+                  </div>
+                  <div className="hero-visual" key={item.id}>
+                    {img ? (
+                      <img src={img} alt="" referrerPolicy="no-referrer" />
+                    ) : (
+                      <Emote3D emote={item} index={ALL.indexOf(item)} className="hero-3d" />
+                    )}
+                  </div>
+                  {HERO_GALLERY.length > 1 && (
+                    <div className="hero-dots" aria-hidden="true">
+                      {HERO_GALLERY.slice(0, 8).map((galleryItem, i) => (
+                        <button
+                          key={galleryItem.id}
+                          type="button"
+                          className={slide % HERO_GALLERY.length === i ? 'is-active' : ''}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setSlide(i);
+                          }}
+                          aria-label={`Vedette ${i + 1}`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  <div className="hero-card-foot">
+                    <code>{commandFor(item, syntax, resource).command}</code>
+                    <span>{img ? 'rendu réel' : 'croquis animé'}</span>
+                  </div>
+                </div>
+              );
+            })()}
             <span className="float-tag tag-a">{number.format(ALL.length)} entrées</span>
             <span className="float-tag tag-b">/e · /emote · /eplay</span>
-            <span className="float-tag tag-c">{featuredFields || 'commande prête'}</span>
+            <span className="float-tag tag-c">{number.format(mappedCount)} rendus GTA réels</span>
             <span className="orbit-ring" />
           </div>
         </section>
@@ -707,6 +835,12 @@ function App() {
           onClose={() => setSelected(null)}
           onFavorite={toggleFavorite}
           onCopy={copy}
+          onNavigate={navInfo && navInfo.list.length > 1 ? goTo : undefined}
+          canNavigate={
+            navInfo && navInfo.list.length > 1
+              ? { prev: navInfo.idx > 0, next: navInfo.idx < navInfo.list.length - 1 }
+              : undefined
+          }
         />
       )}
 
