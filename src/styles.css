@@ -3046,6 +3046,22 @@ body {
   height: 100% !important;
 }
 
+/* Rendu GTA (image statique Plebmasters Forge) */
+.forge-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.planche-frame--forge {
+  aspect-ratio: 4 / 3;
+  border-radius: 14px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #15181d 0%, #0a0c10 100%);
+  border: 1px solid var(--line-strong);
+}
+
 /* Fiche détaillée : cadre sombre « scène » */
 .planche-frame--3d {
   aspect-ratio: 1 / 1;

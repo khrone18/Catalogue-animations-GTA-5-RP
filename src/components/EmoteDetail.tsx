@@ -3,6 +3,7 @@ import type { Emote } from '../lib/pose';
 import { KIND_HINT, KIND_LABEL, altCommand, commandFor, sourceLabel, type ResourceFilter, type Syntax } from '../lib/commands';
 import { Sketch } from './Sketch';
 import { Emote3D } from './Emote3D';
+import { previewFor } from '../lib/forge';
 import { Icon } from './Icon';
 
 interface Props {
@@ -34,7 +35,8 @@ export function EmoteDetail({
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const [frame, setFrame] = useState(0);
-  const [view3d, setView3d] = useState(true);
+  const renderImg = previewFor(emote);
+  const [mode, setMode] = useState<'forge' | '3d' | 'sketch'>(renderImg ? 'forge' : '3d');
   const { command, hint } = commandFor(emote, syntax, resource);
   const alternative = altCommand(emote, syntax);
   const lua = [emote.dict && `dict  = "${emote.dict}"`, emote.anim && `anim  = "${emote.anim}"`]
@@ -43,6 +45,7 @@ export function EmoteDetail({
 
   useEffect(() => {
     setFrame(0);
+    setMode(previewFor(emote) ? 'forge' : '3d');
   }, [emote.id]);
 
   useEffect(() => {
@@ -92,26 +95,52 @@ export function EmoteDetail({
           <div className="modal-visual-head">
             <span className="eyebrow">Aperçu</span>
             <div className="visual-toggle" role="group" aria-label="Mode d'aperçu">
+              {renderImg && (
+                <button
+                  type="button"
+                  className={mode === 'forge' ? 'is-active' : ''}
+                  onClick={() => setMode('forge')}
+                  aria-pressed={mode === 'forge'}
+                >
+                  Rendu GTA
+                </button>
+              )}
               <button
                 type="button"
-                className={view3d ? 'is-active' : ''}
-                onClick={() => setView3d(true)}
-                aria-pressed={view3d}
+                className={mode === '3d' ? 'is-active' : ''}
+                onClick={() => setMode('3d')}
+                aria-pressed={mode === '3d'}
               >
                 3D
               </button>
               <button
                 type="button"
-                className={view3d ? '' : 'is-active'}
-                onClick={() => setView3d(false)}
-                aria-pressed={!view3d}
+                className={mode === 'sketch' ? 'is-active' : ''}
+                onClick={() => setMode('sketch')}
+                aria-pressed={mode === 'sketch'}
               >
                 Croquis
               </button>
             </div>
           </div>
 
-          {view3d ? (
+          {mode === 'forge' ? (
+            <div className="planche" aria-label="Rendu du jeu (Plebmasters Forge)">
+              <div className="planche-frame planche-frame--forge">
+                <img
+                  className="forge-preview"
+                  src={renderImg ?? ''}
+                  alt={`Rendu du jeu : ${emote.label}`}
+                  loading="eager"
+                  referrerPolicy="no-referrer"
+                  onError={() => setMode('3d')}
+                />
+              </div>
+              <p className="sketch-disclaimer">
+                Rendu de l’animation réelle provenant de Plebmasters Forge — nécessite une connexion.
+              </p>
+            </div>
+          ) : mode === '3d' ? (
             <div className="planche" aria-label="Figure 3D illustrative">
               <div className="planche-frame planche-frame--3d">
                 <Emote3D key={emote.id} emote={emote} index={index} />
