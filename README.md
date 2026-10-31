@@ -1,77 +1,80 @@
 # Terrain — catalogue d'emotes GTA V & FiveM
 
-Catalogue local de **3 739 emotes réelles** issues de deux ressources FiveM
-open source :
+![Build](https://img.shields.io/badge/build-%E2%9C%93%20passing-brightgreen)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?logo=typescript&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)
+![Offline](https://img.shields.io/badge/100%25-hors--ligne-orange)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-- [rpemotes-reborn](https://github.com/alberttheprince/rpemotes-reborn)
-- [scully_emotemenu](https://github.com/Scullyy/scully_emotemenu)
+**[3 739 emotes réelles](#catalogue)** extraites de deux ressources FiveM open source,
+avec **aperçu 3D interactif**, recherche instantanée et commandes prêtes à copier.
 
-Recherche instantanée, filtres, favoris, commandes prêtes à copier, planches de
-croquis animés et mode hors-ligne. **Aucune animation n'est inventée** : les
-commandes, dictionnaires, props et scénarios viennent directement des tables Lua
-des ressources. Voir [`data/README.md`](data/README.md) pour les sources exactes.
+> Aucune animation n'est inventée : les commandes, dictionnaires, props et
+> scénarios viennent directement des tables Lua des ressources.
 
-## Démarrage rapide
+---
 
-Prérequis : **Node.js 20+**.
+## ✨ Fonctionnalités
+
+| | |
+| --- | --- |
+| 🕺 **3 739 emotes** | 19 catégories : danses, salutations, gestes, props, animaux, duos… |
+| 🧊 **Aperçu 3D interactif** | Figure squelettique animée par code (Three.js), rotation à la souris, zoom |
+| 💃 **Chorégraphies distinctes** | 8 danses animées différemment (shuffle, krump staccato, robot, bachata…) |
+| 🔍 **Recherche instantanée** | Nom, commande, dictionnaire, prop — ignore les accents et underscores |
+| 🎛️ **Filtres** | Catégorie, type, ressource (rpemotes / Scully), favoris |
+| 📋 **Commandes contextuelles** | `/e`, `/emote`, `/eplay`, `/walk`, `/mood` — selon la ressource choisie |
+| 🖼️ **Croquis animés** | Planche d'artiste SVG avec halo, ring et traces de mouvement |
+| ⭐ **Favoris + thème** | Conservés dans le navigateur, thèmes clair/sombre |
+| 🔗 **Liens profonds** | `?emote=dance` ouvre directement la fiche |
+| 📱 **Responsive** | Mobile et desktop |
+| 📦 **100 % hors-ligne** | Aucun réseau, aucun compte, aucune API |
+
+## 🚀 Démarrage rapide
 
 ```bash
 npm install
-npm run dev
+npm run dev        # http://localhost:5173
 ```
 
-Le site s'ouvre sur `http://localhost:5173`.
-
-## Scripts
-
-| Commande | Effet |
-| --- | --- |
-| `npm run dev` | serveur de développement (rechargement à chaud) |
-| `npm start` | identique à `dev`, ouvre le navigateur |
-| `npm run build` | vérification TypeScript + build de production dans `dist/` |
-| `npm run preview` | sert le build de production |
-| `npm run standalone` | build + fichier HTML unique autonome |
-| `npm run data` | régénère `src/data/catalogue.json` depuis les sources |
-
-## Version hors-ligne
+## 📦 Version hors-ligne
 
 ```bash
 npm run standalone
 ```
 
 Génère **`generated-artifacts/terrain-emotes-offline.html`** : un seul fichier
-d'environ 650 Ko, sans dépendance réseau ni serveur. Il suffit de l'ouvrir dans
-un navigateur (`file://` fonctionne).
+autonome (~1,6 Mo) à ouvrir directement dans un navigateur, `file://` inclus.
 
-## Fonctionnalités
+## 🛠️ Scripts
 
-- **3 739 emotes** réparties en 19 catégories : danses, salutations, gestes,
-  émotions, props, animaux, duos synchronisés, démarches, scénarios…
-- **Recherche** par nom, commande, dictionnaire ou animation.
-- **Filtres** par catégorie, type, ressource (rpemotes / Scully) et favoris.
-- **Commandes contextuelles** : `/e`, `/emote`, `/eplay`, `/walk` ou `/w`,
-  `/mood` ou `/f` selon la ressource.
-- **Planche de croquis** interactive pour chaque emote (entrée, geste, retour),
-  avec la mention explicite qu'il s'agit d'une illustration éditoriale.
-- **Fiche détaillée** : dictionnaire, clip, prop, scénario, partenaire, référence
-  Lua et liens vers la source.
-- **Favoris** et **thème clair/sombre** conservés dans le navigateur.
-- **Liens profonds** : `?emote=dance` ouvre directement la fiche.
-- **Responsive** mobile et desktop.
+| Commande | Effet |
+| --- | --- |
+| `npm run dev` | serveur de développement (hot reload) |
+| `npm run build` | vérification TypeScript + build de production |
+| `npm run standalone` | build + fichier HTML unique autonome |
+| `npm run data` | régénère `src/data/catalogue.json` depuis les sources |
 
-## Structure
+## 📚 Sources
+
+Données générées à partir des tables Lua de :
+
+- **[rpemotes-reborn](https://github.com/alberttheprince/rpemotes-reborn)** — 1 864 entrées · `AnimationList.lua`
+- **[scully_emotemenu](https://github.com/Scullyy/scully_emotemenu)** — 2 935 entrées · `shared/data/emotes/*`
+
+Chaque fiche affiche le dictionnaire, l'animation, le prop et la ressource d'origine.
+
+## 🗂️ Structure
 
 ```text
 .
 ├── generated-artifacts/       # build HTML autonome
-├── data/
-│   ├── README.md              # sources et méthode de génération
-│   └── raw/                   # sources Lua téléchargées (non versionné)
+├── data/raw/                  # sources Lua téléchargées (non versionné)
 ├── scripts/
-│   ├── build-catalogue.py     # téléchargement + parsing + déduplication
+│   ├── build-catalogue.py     # téléchargement + parsing Lua + déduplication
 │   └── build-standalone.mjs   # inlining CSS/JS dans un seul HTML
 ├── src/
-│   ├── components/            # cartes, fiche, croquis SVG, icônes
+│   ├── components/            # cartes, fiche, croquis SVG, figure 3D
 │   ├── data/catalogue.json    # 3 739 emotes générées
 │   ├── lib/                   # commandes, inférence de pose
 │   ├── App.tsx
@@ -79,13 +82,13 @@ un navigateur (`file://` fonctionne).
 └── index.html
 ```
 
-## Crédits et limites
+## ⚖️ Crédits et limites
 
-Les animations, dictionnaires et props appartiennent à Rockstar Games et aux
+Les animations, dictionnaires et props appartiennent à **Rockstar Games** et aux
 auteurs de rpemotes-reborn / scully_emotemenu. Ce projet est un catalogue
 d'aide au roleplay, sans affiliation.
 
-Les croquis sont des **illustrations éditoriales** générées à partir du nom et du
-type de l'emote : ils suggèrent l'intention du geste, mais ne représentent pas la
-capture exacte du jeu. Les alias et la disponibilité des emotes dépendent de la
-version et de la configuration de chaque serveur.
+Les figures 3D et les croquis sont des **illustrations éditoriales** : ils
+montrent l'intention du geste, pas la capture exacte du jeu. Les alias et la
+disponibilité des emotes dépendent de la version et de la configuration de
+chaque serveur.

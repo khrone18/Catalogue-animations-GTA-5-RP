@@ -25,5 +25,15 @@
     "@vitejs/plugin-react": "^4.7.0",
     "typescript": "~5.9.2",
     "vite": "^7.1.2"
-  }
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/khrone18/Catalogue-animations-GTA-5-RP.git"
+  },
+  "homepage": "https://github.com/khrone18/Catalogue-animations-GTA-5-RP#readme",
+  "bugs": {
+    "url": "https://github.com/khrone18/Catalogue-animations-GTA-5-RP/issues"
+  },
+  "author": "Aurélien CASTEL"
 }
