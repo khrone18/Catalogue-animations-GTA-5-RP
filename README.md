@@ -12,6 +12,16 @@ avec **aperçu 3D interactif**, recherche instantanée et commandes prêtes à c
 > Aucune animation n'est inventée : les commandes, dictionnaires, props et
 > scénarios viennent directement des tables Lua des ressources.
 
+## ⬇️ Télécharger
+
+| Version | Lien | Taille |
+|---|---|---|
+| 🏆 **Release (recommandé)** — un fichier, double-clic et c'est ouvert | **[terrain-emotes-offline.html](https://github.com/khrone18/Catalogue-animations-GTA-5-RP/releases/download/v2.1.0/terrain-emotes-offline.html)** | 1,9 Mo |
+| 📁 Fichier dans le dépôt | [generated-artifacts/](generated-artifacts/) | 1,9 Mo |
+| 🛠️ Code source (version développeur) | [zip](https://github.com/khrone18/Catalogue-animations-GTA-5-RP/archive/refs/heads/main.zip) · [clone git](https://github.com/khrone18/Catalogue-animations-GTA-5-RP) | — |
+
+📖 **Installation pas-à-pas pour chaque méthode** (Windows, Mac, Linux, téléphone) → [tutoriel complet](#-installer-en-local--tutoriels-pas-à-pas)
+
 ---
 
 ## ✨ Fonctionnalités
@@ -44,9 +54,9 @@ avec **aperçu 3D interactif**, recherche instantanée et commandes prêtes à c
 
 ### Méthode 1 — Fichier autonome ⭐ *(aucune installation)*
 
-1. Ouvre [`generated-artifacts`](generated-artifacts/) sur cette page
-2. Télécharge le fichier **`terrain-emotes-offline.html`** (bouton *Download raw file* ou flèche ⬇)
-3. **Double-clique** sur le fichier téléchargé → il s'ouvre dans ton navigateur (Edge, Chrome, Firefox…)
+1. Clique sur le gros bouton de téléchargement en haut de page :
+   **[⬇️ terrain-emotes-offline.html](https://github.com/khrone18/Catalogue-animations-GTA-5-RP/releases/download/v2.1.0/terrain-emotes-offline.html)** (1,9 Mo)
+2. **Double-clique** sur le fichier téléchargé → il s'ouvre dans ton navigateur (Edge, Chrome, Firefox…)
 
 ✅ Catalogue, recherche, croquis 3D et favoris marchent **100 % hors-ligne**.
 ⚠️ Seules les images des rendus GTA demandent Internet — sans réseau, l'aperçu bascule automatiquement sur la 3D.
