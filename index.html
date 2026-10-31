@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b0c0e" />
+    <title>Terrain — 3 739 emotes GTA V &amp; FiveM</title>
+    <meta
+      name="description"
+      content="Catalogue local de 3 739 animations GTA V et FiveM : recherche instantanée, croquis animés, commandes /e prêtes à copier, dictionnaires et props vérifiés depuis rpemotes-reborn et scully_emotemenu."
+    />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Terrain — Catalogue d'emotes GTA V & FiveM" />
+    <meta
+      property="og:description"
+      content="3 739 emotes réelles, des croquis animés et toutes les commandes à copier. Fonctionne hors ligne."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script>
+      try {
+        const saved = localStorage.getItem('terrain-theme-v2');
+        const theme = saved === 'light' || saved === 'dark'
+          ? saved
+          : window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.classList.toggle('dark', theme === 'dark');
+      } catch {
+        document.documentElement.dataset.theme = 'dark';
+        document.documentElement.classList.add('dark');
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

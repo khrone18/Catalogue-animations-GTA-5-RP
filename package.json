@@ -1,0 +1,29 @@
+{
+  "name": "terrain-emotes",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Terrain — catalogue local d'emotes GTA V & FiveM (rpemotes-reborn + scully_emotemenu)",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "start": "vite --host 0.0.0.0 --open",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "standalone": "npm run build && node scripts/build-standalone.mjs",
+    "data": "python3 scripts/build-catalogue.py"
+  },
+  "dependencies": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7",
+    "@types/three": "^0.187.0",
+    "@vitejs/plugin-react": "^4.7.0",
+    "typescript": "~5.9.2",
+    "vite": "^7.1.2"
+  }
+}
